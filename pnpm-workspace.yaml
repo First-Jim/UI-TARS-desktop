@@ -1,8 +1,12 @@
 packages:
-  - 'apps/*'
-  - 'apps/agent-tars/src/*'
-  - 'apps/ui-tars/src/*'
-  - 'packages/ui-tars/**'
-  - 'packages/agent-infra/**'
-  - 'packages/common/*'
-  - '!packages/ui-tars/visualizer'
+  # old
+  # - 'apps/*'
+  # - 'apps/agent-tars/src/*'
+  # - 'apps/ui-tars/src/*'
+  # - 'packages/ui-tars/**'
+  # - 'packages/agent-infra/**'
+  # - 'packages/common/*'
+  # - '!packages/ui-tars/visualizer'
+  # new
+  - 'apps/nest-supabase-prisma'
+  - 'apps/react-mobx-tailwindcss'
