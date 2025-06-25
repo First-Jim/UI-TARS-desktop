@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>arrow-left-bold</title>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="个人中心" transform="translate(-1774.000000, -147.000000)" fill="#004588" fill-rule="nonzero">
+            <g id="编组" transform="translate(1678.000000, 143.000000)">
+                <g id="arrow-left-bold" transform="translate(106.000000, 14.000000) rotate(-180.000000) translate(-106.000000, -14.000000) translate(96.000000, 4.000000)">
+                    <rect id="矩形" opacity="0" x="0" y="0" width="20" height="20"></rect>
+                    <path d="M7.5,10 L14.2916602,3.95833984 C14.625,3.66666016 14.6666602,3.125 14.375,2.79166016 C14.0833398,2.45833984 13.5416602,2.41666016 13.2083398,2.70833984 L5.70833984,9.375 C5.5,9.54166016 5.41666016,9.75 5.41666016,10 C5.41666016,10.25 5.5,10.4583398 5.70833984,10.625 L13.2083398,17.2916602 C13.375,17.4166602 13.5833398,17.5 13.75,17.5 C14,17.5 14.2083398,17.4166602 14.375,17.2083398 C14.6666602,16.875 14.6666602,16.3333398 14.2916602,16.0416602 L7.5,10 Z" id="路径"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

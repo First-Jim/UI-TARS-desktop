@@ -63,6 +63,18 @@
     "dev": {
       "persistent": true,
       "cache": false
+    },
+    "start:dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "nest-api#start:dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "react-web#dev": {
+      "persistent": true,
+      "cache": false
     }
   }
 }

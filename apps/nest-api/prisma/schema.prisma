@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  name             String
+  email            String?   @unique
+  password         String?
+  meetings         Meeting[]
+  loginAttempts    Int       @default(0)
+  lockExpires      DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  isVerified       Boolean   @default(false)
+  verifyToken      String?   @unique
+  authTokens       Token[]
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  // WeChat related fields
+  wechatOpenId         String?   @unique
+  wechatUnionId        String?   @unique
+  wechatNickname       String?
+  wechatHeadImgUrl     String?
+  wechatSubscribed     Boolean   @default(false)
+  wechatSubscribeTime  DateTime?
+  wechatSubscribeScene String?
+  wechatQrScene        String?
+  wechatQrSceneStr     String?
+  wechatLanguage       String?
+  wechatProvince       String?
+  wechatCity           String?
+  wechatCountry        String?
+  wechatRemark         String?
+  wechatGroupId        Int?
+  wechatTagIds         String? // JSON array as string
+  Todos                Todos[]
+
+  @@index([wechatOpenId])
+  @@index([wechatUnionId])
+}
+
+model WechatQrCode {
+  id         String    @id @default(cuid())
+  sceneValue String    @unique
+  status     String    @default("pending") // pending, scanned, expired
+  userInfo   Json?
+  tokens     Json?
+  createdAt  DateTime  @default(now())
+  scannedAt  DateTime?
+  expiresAt  DateTime
+
+  @@index([sceneValue])
+  @@index([expiresAt])
+}
+
+model Meeting {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  date        DateTime
+  notes       String?
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  value     String   @unique
+  userId    Int
+  expiresAt DateTime
+  deviceId  String?
+  userAgent String?
+  ipAddress String?
+  lastUsed  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Todos {
+  id        Int      @id @default(autoincrement())
+  title     String
+  completed Boolean  @default(false)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -8,5 +8,5 @@ packages:
   # - 'packages/common/*'
   # - '!packages/ui-tars/visualizer'
   # new
-  - 'apps/nest-supabase-prisma'
-  - 'apps/react-mobx-tailwindcss'
+  - 'apps/nest-api'
+  - 'apps/react-web'
