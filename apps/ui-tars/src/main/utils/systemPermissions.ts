@@ -2,12 +2,27 @@
  * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
  * SPDX-License-Identifier: Apache-2.0
  */
-import {
-  hasPromptedForPermission,
-  hasScreenCapturePermission,
-  openSystemPreferences,
-} from '@computer-use/mac-screen-capture-permissions';
-import permissions from '@computer-use/node-mac-permissions';
+// 使用动态导入来避免在模块加载时就出错
+let screenCapturePermissions: any = null;
+let permissions: any = null;
+
+const loadPermissions = async () => {
+  try {
+    if (!screenCapturePermissions) {
+      screenCapturePermissions = await import(
+        '@computer-use/mac-screen-capture-permissions'
+      );
+    }
+    if (!permissions) {
+      permissions = (await import('@computer-use/node-mac-permissions'))
+        .default;
+    }
+    return { screenCapturePermissions, permissions };
+  } catch (error) {
+    console.warn('Failed to load permission modules:', error);
+    return { screenCapturePermissions: null, permissions: null };
+  }
+};
 
 import * as env from '@main/env';
 import { logger } from '@main/logger';
@@ -22,8 +37,17 @@ const wrapWithWarning =
     return nativeFunction(...args);
   };
 
-const askForAccessibility = (nativeFunction, functionName) => {
-  const accessibilityStatus = permissions.getAuthStatus('accessibility');
+const askForAccessibility = (
+  nativeFunction,
+  functionName,
+  permissionsModule,
+) => {
+  if (!permissionsModule) {
+    logger.warn('Permissions module not available for accessibility check');
+    return nativeFunction;
+  }
+
+  const accessibilityStatus = permissionsModule.getAuthStatus('accessibility');
   logger.info('[accessibilityStatus]', accessibilityStatus);
 
   if (accessibilityStatus === 'authorized') {
@@ -34,15 +58,24 @@ const askForAccessibility = (nativeFunction, functionName) => {
     accessibilityStatus === 'denied'
   ) {
     hasAccessibilityPermission = false;
-    permissions.askForAccessibilityAccess();
+    permissionsModule.askForAccessibilityAccess();
     return wrapWithWarning(
       `##### WARNING! The application running this script tries to access accessibility features to execute ${functionName}! Please grant requested access and visit https://github.com/nut-tree/nut.js#macos for further information. #####`,
       nativeFunction,
     );
   }
 };
-const askForScreenRecording = (nativeFunction, functionName) => {
-  const screenCaptureStatus = permissions.getAuthStatus('screen');
+const askForScreenRecording = (
+  nativeFunction,
+  functionName,
+  permissionsModule,
+) => {
+  if (!permissionsModule) {
+    logger.warn('Permissions module not available for screen recording check');
+    return nativeFunction;
+  }
+
+  const screenCaptureStatus = permissionsModule.getAuthStatus('screen');
 
   if (screenCaptureStatus === 'authorized') {
     hasScreenRecordingPermission = true;
@@ -52,7 +85,7 @@ const askForScreenRecording = (nativeFunction, functionName) => {
     screenCaptureStatus === 'denied'
   ) {
     hasScreenRecordingPermission = false;
-    permissions.askForScreenCaptureAccess();
+    permissionsModule.askForScreenCaptureAccess();
     return wrapWithWarning(
       `##### WARNING! The application running this script tries to screen recording features to execute ${functionName}! Please grant the requested access for further information. #####`,
       nativeFunction,
@@ -60,10 +93,10 @@ const askForScreenRecording = (nativeFunction, functionName) => {
   }
 };
 
-export const ensurePermissions = (): {
+export const ensurePermissions = async (): Promise<{
   screenCapture: boolean;
   accessibility: boolean;
-} => {
+}> => {
   if (env.isE2eTest) {
     return {
       screenCapture: true,
@@ -71,18 +104,42 @@ export const ensurePermissions = (): {
     };
   }
 
-  logger.info('Has asked permissions?', hasPromptedForPermission());
+  const { screenCapturePermissions, permissions: permissionsModule } =
+    await loadPermissions();
 
-  hasScreenRecordingPermission = hasScreenCapturePermission();
-  logger.info('Has permissions?', hasScreenRecordingPermission);
-  logger.info('Has asked permissions?', hasPromptedForPermission());
-
-  if (!hasScreenRecordingPermission) {
-    openSystemPreferences();
+  if (!screenCapturePermissions || !permissionsModule) {
+    logger.warn(
+      'Permission modules not available, returning default permissions',
+    );
+    return {
+      screenCapture: false,
+      accessibility: false,
+    };
   }
 
-  askForAccessibility(() => {}, 'execute accessibility');
-  askForScreenRecording(() => {}, 'execute screen recording');
+  logger.info(
+    'Has asked permissions?',
+    screenCapturePermissions.hasPromptedForPermission(),
+  );
+
+  hasScreenRecordingPermission =
+    screenCapturePermissions.hasScreenCapturePermission();
+  logger.info('Has permissions?', hasScreenRecordingPermission);
+  logger.info(
+    'Has asked permissions?',
+    screenCapturePermissions.hasPromptedForPermission(),
+  );
+
+  if (!hasScreenRecordingPermission) {
+    screenCapturePermissions.openSystemPreferences();
+  }
+
+  askForAccessibility(() => {}, 'execute accessibility', permissionsModule);
+  askForScreenRecording(
+    () => {},
+    'execute screen recording',
+    permissionsModule,
+  );
 
   logger.info(
     '[ensurePermissions] hasScreenRecordingPermission',

@@ -83,7 +83,7 @@ const initializeApp = async () => {
     app.setAccessibilitySupportEnabled(true);
     const { ensurePermissions } = await import('@main/utils/systemPermissions');
 
-    const ensureScreenCapturePermission = ensurePermissions();
+    const ensureScreenCapturePermission = await ensurePermissions();
     logger.info('ensureScreenCapturePermission', ensureScreenCapturePermission);
   }
 

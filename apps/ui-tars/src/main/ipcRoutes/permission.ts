@@ -13,7 +13,7 @@ export const permissionRoute = t.router({
       const { ensurePermissions } = await import(
         '@main/utils/systemPermissions'
       );
-      store.setState({ ensurePermissions: ensurePermissions() });
+      store.setState({ ensurePermissions: await ensurePermissions() });
     } else {
       store.setState({
         ensurePermissions: { screenCapture: true, accessibility: true },

@@ -46,7 +46,7 @@ export const postMake: ForgeHookMap['postMake'] = async (
           const fileData = fs.readFileSync(artifact);
           const hash = crypto
             .createHash('sha512')
-            .update(fileData)
+            .update(new Uint8Array(fileData))
             .digest('base64');
           const { size } = fs.statSync(artifact);
 
